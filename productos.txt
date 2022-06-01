@@ -1,0 +1,1 @@
+[{"title":"Escuadra","price":123.45,"url":"https://es.pngtree.com/so/calculadora-de-dibujos-animados","id":1},{"title":"cuadra","price":123.45,"url":"https://es.pngtree.com/so/calculadora-de-dibujos-animados","id":1},{"title":"dra","price":123.45,"url":"https://es.pngtree.com/so/calculadora-de-dibujos-animados","id":1}]
