@@ -38,46 +38,37 @@ usuario.addBook('El codigo Da Vinci', 'Dan Brown');
 usuario.getBookNames(); 
  */
 
- 
+ //codigo para entrega de desafio "manejo de archivos"
 
  const fs = require('fs')
 
-
 class Contenedor{
     constructor(rutaArchivo){
-        this.nombre= rutaArchivo;
+        this.rutaArchivo= rutaArchivo;
         fs.promises.writeFile(`./${rutaArchivo}`,"")
     }
-   
-    async save(objeto){
-        try {
-        let data = await fs.promises.readFile(this.nombre)
-        if(data.length ==0){
-            let id = {'id': 1}
-            let newObject=Object.assign(objeto,id)
-            const jsonData = [newObject]
-            await fs.promises.writeFile(this.nombre ,JSON.stringify(jsonData))
-            return id
-        }else{    
-            const contenido = JSON.parse(data)
-            let lastIndex= contenido.length
-            let num= lastIndex-1
-            let newId= lastIndex+1
-            let newObject=Object.assign(objeto,{'id':newId})
-            contenido.push(newObject)
-            await fs.promises.writeFile(this.nombre, JSON.stringify(contenido))
-            return newId
+    async save(objeto) {
+        let data = await fs.promises.readFile(`./${this.rutaArchivo}`, 'utf-8')
+        if(!data) {
+            objeto.id = 1
+            const array = [objeto]
+            await fs.promises.writeFile(`./${this.rutaArchivo}`, JSON.stringify(array))
+            return objeto.id
+        } else {
+            data = JSON.parse(data);
+            objeto.id = data.length + 1
+            data.push(objeto)
+            await fs.promises.writeFile(`./${this.rutaArchivo}`, JSON.stringify(data))
+            return objeto.id
         }
-  
-        } catch (error) {
-            console.log("ERROR")
-            console.log(error)    
-        }
-       
     }
-    async load(){
-       return JSON.parse(await fs.promises.readFile( this.nombre ,'utf-8'))
+
+     async load(){
+       await fs.promises.readFile( this.rutaArchivo ,'utf-8')
+       return JSON.parse(this.rutaArchivo)
+        
     }
+    //ok
     async getById(id){
         try {
             const contenido = await this.load()
@@ -87,8 +78,8 @@ class Contenedor{
         } catch (error) {
             console.log(`Error en getById:${error}`)
         }
-        
     }
+    //ok
     async getAll(){
         try {
             const contenido = await this.load()
@@ -97,17 +88,19 @@ class Contenedor{
             console.log(`Error en getAll:${error}`)
         }
     }
+    
     async deleteById(id){
         try {
-            const contenido = await this.load()
-            let objeto = contenido.filter(item=>item.id=id)
+            let contenido = await this.load()
+            contenido = JSON.parse(contenido)
+            contenido = contenido.find(item=> item.id != id)
             await fs.promises.writeFile(this.nombre,JSON.stringify(objeto))          
             
         } catch (error) {
             console.log(`Error en deleteById:${error}`)
         }
     }
-    
+    // ok
     async deleteAll(){
         try {
             await fs.promises.writeFile( this.nombre,"") 
@@ -119,55 +112,19 @@ class Contenedor{
 
 }
 
-const product =new Contenedor('productos.txt')
+ const product = new Contenedor('productos.txt')
 
-async function test(){
-    
-    let idProduct = await product.save(
-        {                                                                                                                                                    
-        'title': 'Escuadra',                                                                                                                                 
-        'price': 123.45 ,
-        'url': 'https://es.pngtree.com/so/calculadora-de-dibujos-animados'                                                                                                                               
-      }
-    )
-
-    console.log("Guardado:", idProduct)
-    let idProduct2 = await product.save(
-        {                                                                                                                                                    
-        'title': 'cuadra',                                                                                                                                 
-        'price': 123.45 ,
-        'url': 'https://es.pngtree.com/so/calculadora-de-dibujos-animados'                                                                                                                               
-      }
-    )
-    console.log("Guardado:", idProduct2)  
-
-    let idProduct3 = await product.save(
-        {                                                                                                                                                    
-        'title': 'dra',                                                                                                                                 
-        'price': 123.45 ,
-        'url': 'https://es.pngtree.com/so/calculadora-de-dibujos-animados'                                                                                                                               
-      }
-    )
-    console.log("Guardado:", idProduct3)
-
-    let productById = await product.getById(2)
-    console.log("getById:", productById)
-    
-    let productgetAll= await product.getAll()
-    console.log("getAll", productgetAll)
-
-    let productdeleteById = await product.deleteById(1)
-    console.log(`productdeleteById: ${productdeleteById}`)
-
-    let productById2 = await product.getById(1)
-    console.log("getById:", productById2)
-
-    //let productdeleteById2 = await product.deleteById(1)
-    //console.log(`productdeleteById: ${productdeleteById2}`) 
-
-    //let productdeleteAll= await product.deleteAll()
-    //console.log(`productdeleteAll: ${productdeleteAll}`)
-    
+const obj1 = {
+    title: 'celular',                                                                                                                                 
+    price: 18000 ,
+    url: 'https://i.pinimg.com/236x/9c/d9/5d/9cd95d443475b7ff5ecb81b08fc66215.jpg'
 }
+const obj2 = {
+    title: 'notebook',                                                                                                                                 
+    price: 65000 ,
+    url: 'https://i.blogs.es/f32047/xiaomi-mi-notebook/1366_2000.jpg'  
+}
+product.save(obj1)
+product.save(obj2)
 
-test()
+//product.deleteById(1)

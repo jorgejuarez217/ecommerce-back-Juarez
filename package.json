@@ -1,0 +1,23 @@
+{
+  "dependencies": {
+    "nodemon": "^2.0.16"
+  },
+  "name": "curso-backend",
+  "version": "1.0.0",
+  "main": "main.js",
+  "devDependencies": {},
+  "scripts": {
+    "start": "nodemon ./main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jorgejuarez217/ecommerce-back-Juarez.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jorgejuarez217/ecommerce-back-Juarez/issues"
+  },
+  "homepage": "https://github.com/jorgejuarez217/ecommerce-back-Juarez#readme",
+  "description": ""
+}

@@ -1,1 +1,1 @@
-[{"title":"Escuadra","price":123.45,"url":"https://es.pngtree.com/so/calculadora-de-dibujos-animados","id":1},{"title":"cuadra","price":123.45,"url":"https://es.pngtree.com/so/calculadora-de-dibujos-animados","id":1},{"title":"dra","price":123.45,"url":"https://es.pngtree.com/so/calculadora-de-dibujos-animados","id":1}]
+[{"title":"notebook","price":65000,"url":"https://i.blogs.es/f32047/xiaomi-mi-notebook/1366_2000.jpg","id":1}]pg","id":1}]
