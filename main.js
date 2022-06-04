@@ -62,33 +62,25 @@ class Contenedor{
             return objeto.id
         }
     }
-
-     async load(){
-       await fs.promises.readFile( this.rutaArchivo ,'utf-8')
-       return JSON.parse(this.rutaArchivo)
         
-    }
+    
     //ok
     async getById(id){
-        try {
-            const contenido = await this.load()
-            let objeto = contenido.find(el=>el.id==id)
-            if(objeto== undefined){return null} 
-            return objeto
-        } catch (error) {
-            console.log(`Error en getById:${error}`)
-        }
+          const data = JSON.parse(await fs.promises.readFile(`./${this.rutaArchivo}`, 'utf-8'))
+          const index = id -1 
+          return data[index]
     }
+
     //ok
     async getAll(){
-        try {
-            const contenido = await this.load()
-            return contenido
-        } catch (error) {
-            console.log(`Error en getAll:${error}`)
-        }
+        try{
+            let data = JSON.parse(await fs.promises.readFile(`./${this.rutaArchivo}`, 'utf-8'))
+            return data
     }
-    
+    catch (error){
+        console.log(error);
+    }
+}
     async deleteById(id){
         try {
             let contenido = await this.load()
@@ -103,7 +95,7 @@ class Contenedor{
     // ok
     async deleteAll(){
         try {
-            await fs.promises.writeFile( this.nombre,"") 
+            await fs.promises.writeFile( this.rutaArchivo,[]) 
         } catch (error) {
             console.log(`Error en deleteAll:${error}`)
         }
@@ -124,7 +116,4 @@ const obj2 = {
     price: 65000 ,
     url: 'https://i.blogs.es/f32047/xiaomi-mi-notebook/1366_2000.jpg'  
 }
-product.save(obj1)
-product.save(obj2)
-
-//product.deleteById(1)
+product.save(obj1, obj2)
