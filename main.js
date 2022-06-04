@@ -40,12 +40,13 @@ usuario.getBookNames();
 
  //codigo para entrega de desafio "manejo de archivos"
 
- const fs = require('fs')
+ const fs = require('fs');
+const { json } = require('stream/consumers');
 
 class Contenedor{
     constructor(rutaArchivo){
         this.rutaArchivo= rutaArchivo;
-        fs.promises.writeFile(`./${rutaArchivo}`,"")
+       // fs.promises.writeFile(`./${rutaArchivo}`,"")
     }
     async save(objeto) {
         let data = await fs.promises.readFile(`./${this.rutaArchivo}`, 'utf-8')
@@ -73,20 +74,15 @@ class Contenedor{
 
     //ok
     async getAll(){
-        try{
             let data = JSON.parse(await fs.promises.readFile(`./${this.rutaArchivo}`, 'utf-8'))
             return data
-    }
-    catch (error){
-        console.log(error);
-    }
+    
 }
     async deleteById(id){
         try {
-            let contenido = await this.load()
-            contenido = JSON.parse(contenido)
-            contenido = contenido.find(item=> item.id != id)
-            await fs.promises.writeFile(this.nombre,JSON.stringify(objeto))          
+            let contenido = JSON.parse( await fs.promises.readFile(`./${this.rutaArchivo}`, 'utf-8'))
+           // contenido = JSON.parse(contenido)
+            contenido = contenido.filter(item=> item.id != id)        
             
         } catch (error) {
             console.log(`Error en deleteById:${error}`)
@@ -116,4 +112,7 @@ const obj2 = {
     price: 65000 ,
     url: 'https://i.blogs.es/f32047/xiaomi-mi-notebook/1366_2000.jpg'  
 }
-product.save(obj1, obj2)
+//product.save(obj1)
+product.save(obj2)
+//product.getAll()
+product.getById(2)
