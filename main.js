@@ -41,7 +41,6 @@ usuario.getBookNames();
  //codigo para entrega de desafio "manejo de archivos"
 
  const fs = require('fs');
-const { json } = require('stream/consumers');
 
 class Contenedor{
     constructor(rutaArchivo){
@@ -69,12 +68,14 @@ class Contenedor{
     async getById(id){
           const data = JSON.parse(await fs.promises.readFile(`./${this.rutaArchivo}`, 'utf-8'))
           const index = id -1 
+          console.log(data);
           return data[index]
     }
 
     //ok
     async getAll(){
             let data = JSON.parse(await fs.promises.readFile(`./${this.rutaArchivo}`, 'utf-8'))
+            console.log(data)
             return data
     
 }
@@ -83,7 +84,7 @@ class Contenedor{
             let contenido = JSON.parse( await fs.promises.readFile(`./${this.rutaArchivo}`, 'utf-8'))
            // contenido = JSON.parse(contenido)
             contenido = contenido.filter(item=> item.id != id)        
-            
+            await fs.promises.writeFile(this.nombre,JSON.stringify(objeto))
         } catch (error) {
             console.log(`Error en deleteById:${error}`)
         }
