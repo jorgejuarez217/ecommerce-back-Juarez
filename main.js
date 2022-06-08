@@ -40,7 +40,8 @@ usuario.getBookNames();
 
  //codigo para entrega de desafio "manejo de archivos"
 
- const fs = require('fs');
+ //const fs = require('fs');
+import fs from 'fs'
 
 class Contenedor{
     constructor(rutaArchivo){
@@ -63,7 +64,6 @@ class Contenedor{
         }
     }
         
-    
     //ok
     async getById(id){
           const data = JSON.parse(await fs.promises.readFile(`./${this.rutaArchivo}`, 'utf-8'))
@@ -82,7 +82,6 @@ class Contenedor{
     async deleteById(id){
         try {
             let contenido = JSON.parse( await fs.promises.readFile(`./${this.rutaArchivo}`, 'utf-8'))
-           // contenido = JSON.parse(contenido)
             contenido = contenido.filter(item=> item.id != id)        
             await fs.promises.writeFile(this.nombre,JSON.stringify(objeto))
         } catch (error) {
@@ -99,6 +98,18 @@ class Contenedor{
          
     }
 
+    async getRandom() {
+		try {
+			let dataProd = await fs.promises.readFile(`./${this.rutaArchivo}`, 'utf-8')
+			dataProd = JSON.parse(dataProd)
+			const productRandom = dataProd[Math.floor(Math.random() * dataProd.length)]
+
+			return productRandom
+		} catch {
+			console.log('Error no se puede leer el archivo')
+		}
+	}
+
 }
 
  const product = new Contenedor('productos.txt')
@@ -113,7 +124,35 @@ const obj2 = {
     price: 65000 ,
     url: 'https://i.blogs.es/f32047/xiaomi-mi-notebook/1366_2000.jpg'  
 }
-//product.save(obj1)
-product.save(obj2)
-//product.getAll()
-product.getById(2)
+
+
+// codigo para desafio de servidores con express
+
+import express from 'express'
+const app = express();
+const puerto = 8080;
+
+const productoRandom = async (req, res) => {
+	const respuesta = await product.getRandom()
+	res.send(respuesta)
+}
+
+/* app.get('/productos',  (req, res) =>{
+    const resp = product.getAll()
+    console.log(resp);
+    res.send(resp)
+})
+ */
+
+app.get ('/productoRandom', productoRandom)
+
+
+app.listen(puerto, error =>{
+    if(error){
+        console.log('Se produjo un error al conectar al servidor');
+    }else{
+        console.log(`Servidor conectado en el puerto : ${puerto}`);
+    }
+})
+
+
