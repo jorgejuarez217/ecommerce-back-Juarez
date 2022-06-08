@@ -132,19 +132,18 @@ import express from 'express'
 const app = express();
 const puerto = 8080;
 
-const productoRandom = async (req, res) => {
+/* const productoRandom = async (req, res) => {
 	const respuesta = await product.getRandom()
 	res.send(respuesta)
 }
-
-/* app.get('/productos',  (req, res) =>{
-    const resp = product.getAll()
-    console.log(resp);
-    res.send(resp)
-})
  */
+const listaProd = async (req, res) => {
+	const respuesta = await product.getAll()
+	res.send(respuesta)
+}
 
-app.get ('/productoRandom', productoRandom)
+ app.get('/productos', listaProd)
+//app.get ('/productoRandom', productoRandom)
 
 
 app.listen(puerto, error =>{
