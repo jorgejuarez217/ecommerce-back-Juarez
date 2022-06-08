@@ -142,6 +142,9 @@ const listaProd = async (req, res) => {
 	res.send(respuesta)
 }
 
+app.get('/', () =>{
+    res.send('<h1> Bienvenido al servidor </h1>')
+})
  app.get('/productos', listaProd)
 //app.get ('/productoRandom', productoRandom)
 
