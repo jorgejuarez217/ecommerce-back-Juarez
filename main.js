@@ -36,7 +36,7 @@ usuario.addMascota('conejo');
 usuario.countMascotas();
 usuario.addBook('El codigo Da Vinci', 'Dan Brown');
 usuario.getBookNames(); 
- */
+ 
 
  //codigo para entrega de desafio "manejo de archivos"
 
@@ -132,11 +132,11 @@ import express from 'express'
 const app = express();
 const puerto = 8080;
 
-/* const productoRandom = async (req, res) => {
+ const productoRandom = async (req, res) => {
 	const respuesta = await product.getRandom()
 	res.send(respuesta)
 }
- */
+ 
 const listaProd = async (req, res) => {
 	const respuesta = await product.getAll()
 	res.send(respuesta)
@@ -157,4 +157,34 @@ app.listen(puerto, error =>{
     }
 })
 
+*/
 
+import express  from 'express'
+const app = express ();
+const puerto = 8080;
+import path from 'path'
+import  routes from './routes/index.js' 
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: false}));
+app.use(express.static(path.join(__dirname, 'public')));
+
+
+
+
+
+
+
+app.use('/api/productos', routes)
+
+
+
+app.listen (puerto, error =>{
+   if(!error){ console.log(`Servidor escuchando puerto ${puerto}`);
+   }else{
+       console.log(`Error al conectar el sevidor ${error}`);
+   }
+}) 
