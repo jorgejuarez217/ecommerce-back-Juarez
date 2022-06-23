@@ -1,0 +1,15 @@
+h3(style={margin : '2rem 0'})  Ingresar Productos
+form(action="/productos", method="post") 
+    span Nombre 
+    input.input-group(type="text", name="title", placeholder="Nombre", required) 
+    br
+    span Precio
+    input.input-group(type="number", name="price",placeholder="Precio", required)
+    br
+    span Enlace Foto
+    input.input-group(type="text", name="thumbnail", placeholder="Enlace Foto", required)
+    br
+    button.btn.btn-primary(type="submit", name="Ver Productos") Ver Productos
+    
+  
+
