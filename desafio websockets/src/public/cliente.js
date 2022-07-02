@@ -1,108 +1,73 @@
-// Lado cliente
-const socket = io() 
+const socket = io()
 
-const tiempoTranscurrido = Date.now()
-const hoy = new Date(tiempoTranscurrido)
-const fecha= hoy.toLocaleDateString()
-const tiempo = new Date()
-const argHora=tiempo.toLocaleTimeString('it-IT')
-
-
-//CHAT 
-const formChat = document.querySelector('#formChat')
-const mailInput = document.querySelector('#mailInput')
+const formMessage = document.querySelector('#formMessage')
+const usernameInput = document.querySelector('#usernameInput')
 const messageInput = document.querySelector('#messageInput')
+const messagePool = document.querySelector('#messagePool')
+const formProducto = document.querySelector('#formProducto')
 
 
-const totalMessages = document.querySelector('#totalMessages')
-// EMITO MENSAJES AL SERVIDOR
-function sendMessage() {
-    try {
-        const mail = mailInput.value
-        const message = messageInput.value
-        const tiempochat = `${fecha}, ${argHora}`
-        console.log(tiempochat)
-        socket.emit('client:message', { mail, tiempochat, message }) //emito el mensaje al servidor
-    } catch(error) {
-        console.log(`Hubo un error ${error}`)
-    }
+
+const productoInput = document.querySelector('#productoInput')
+const precioInput = document.querySelector('#precioInput')
+const ProductoPool = document.querySelector('#ProductoPool')
+const thumbnailInpunt = document.querySelector('#thumbnailInpunt')
+const botonInput = document.querySelector('#botonInput')
+
+
+
+botonInput.onclick = () => {
+
+  const producto = productoInput.value
+  const precio = precioInput.value
+  const thumbnail = thumbnailInpunt.value
+  socket.emit('cliente:producto', { producto, precio, thumbnail })
+
 }
-//RENDER MENSAJES E INSERTO HTML
-function renderMessages(messagesArray) {
-    try {
-        const html = messagesArray.map(messageInfo => {
-            return(`<div>
-                <strong style="color: blue;" >${messageInfo.mail}</strong>[
-                <span style="color: brown;">${fecha}, ${argHora}</span>]:
-                <em style="color: green;font-style: italic;">${messageInfo.message}</em> </div>`)
-        }).join(" ");
 
-        totalMessages.innerHTML = html
-    } catch(error) {
-        console.log(`Hubo un error ${error}`)
-    }
-}
-// ESCUCHO EVENTO - ENVIO CHAT
-formChat.addEventListener('submit', event => {
-    event.preventDefault()
-    sendMessage()
-    messageInput.value = "" 
+socket.on('server:producto', newData => {
+  const html = `
+  {{#each newData}}
+      <tr>
+          <th scope="row" class="text-center">{{ producto }}</th>
+          <td class="text-center">$ {{ precio }}</td>
+          <td class="text-center">
+              <img height="80px" width="150px" src={{ url }} alt={{ producto }} />
+          </td>
+      </tr>
+  {{/each}}
+`;
+
+  const template = Handlebars.compile(html);
+  const data = template({ newData });
+
+  ProductoPool.innerHTML = data;
 })
 
-// CAPTURO MENSAJES EMITIDOS AL SERVIDOR
-socket.on('serverSend:message', renderMessages);
 
-// 2  PARTE PRODUCTOS
-const formProducts = document.querySelector('#formProducts')
-const titleInput = document.querySelector('#title')
-const priceInput = document.querySelector('#price')
-const thumbnailInput = document.querySelector('#thumbnail')
+formMessage.addEventListener('submit', event => {
+  event.preventDefault()
 
-const productosInsert = document.querySelector('#productosTabla')
+  const username = usernameInput.value
+  const message = messageInput.value
+  const hours = new Date()
+  const fecha = ([hours.getDate(), hours.getMonth(), hours.getFullYear()])
+  const time = ([hours.getHours(), hours.getMinutes()])
+  const resultado = fecha.join("/")
 
-// EMITO Productos AL SERVIDOR
-function sendProduct() {
-    try {
-        const title = titleInput.value
-        const price = priceInput.value
-        const thumbnail = thumbnailInput.value
-    
-        socket.emit('client:enterProduct', { title, price, thumbnail }) //emito el mensaje al servidor
-    } catch(error) {
-        console.log(`Hubo un error ${error}`)
-    }
-}
-//RENDER Productos E INSERTO HTML
-async function renderProducts (productsArray) {
-    try {
-        const response = await fetch('/plantilla.hbs') //traemos la plantilla
-        
-        const plantilla = await response.text() //obtenemos el texto de la misma
-        
-        if (productsArray.length>0) {
-            document.querySelector('#noProducts').innerHTML=""  
-            document.querySelector('#productosTabla').innerHTML = ""
-            productsArray.forEach(product => {
-                const template = Handlebars.compile(plantilla)
-                const filled = template(product) 
-                document.querySelector('#productosTabla').innerHTML += filled 
-            }); 
-        }else{
-            document.querySelector('#noProducts').innerHTML = ("<h4>No hay ninguna producto :(</h4>")
-        }
-        
-    } catch(error) {
-        console.log(`Hubo un error ${error}`)
-    }
-}
-// ESCUCHO EVENTO - ENVIO CHAT
-formProducts.addEventListener('submit', event => {
-    event.preventDefault()
-    sendProduct()
-    formProducts.value = "" 
+
+
+  socket.emit('cliente:mensaje', { username, message, resultado, time })
 })
 
-// CAPTURO Productos EMITIDOS AL SERVIDOR
-socket.on('serverSend:Products', productos=>{
-      renderProducts(productos)
-});
+
+socket.on('server:mensaje', data => {
+  messagePool.innerHTML = ""
+
+  data.forEach(message => {
+    messagePool.innerHTML += `<h2>  <b style= 'color: blue'> ${message.username}:  <b style= 'color: red'> [${message.resultado}]:  [${message.time}]:  <b style= 'color: green'> ${message.message} </h2>`
+
+  })
+
+
+})
