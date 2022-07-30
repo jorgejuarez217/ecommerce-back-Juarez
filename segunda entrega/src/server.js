@@ -1,24 +1,35 @@
-import express from "express";
-import __dirname from "./utils.js";
-import productsRouter from "./routes/productsRouter.js";
-import cartsRouter from "./routes/cartsRouter.js";
-import {config} from "dotenv";
+import express from 'express';
 
-config();
+const app = express()
+import rutas from './routes/index.js';
+const puerto =process.env.PORT||8080     
 
-const app = express();
 
-const PORT = process.env.PORT || 8080;
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 
-app.use(express.json());
-app.use(express.urlencoded({extended: true}));
+app.use('/api', rutas)
 
-app.use(express.static(`${__dirname}/public`));
+const error404= (req, res,next)=>{
+    let mensajeError={
+        error : "-2",
+        descripcion: `ruta: ${req.url} método: ${req.method} no implementado`
+    }
+    res.status(404).json( mensajeError)
+    next()
+} 
+//Ruta NO encontrada
+app.use(error404)
 
-app.use("/api/productos", productsRouter);
-app.use("/api/carrito", cartsRouter);
 
-app.use((req, res)=>{ res.status(404).json({error: -2, descripcion: `ruta ${req.originalUrl} método ${req.method} no implementada`}) });
+// app.use((error, req, res) => {
+//     res.status(error.httpStatusCode).send(error)
+// })
 
-const server = app.listen(PORT, ()=> console.log(`Server listening on port: ${PORT}`));
-server.on("error", err => console.log(`Oh no! Something is broken on the server: ${err}`));
+app.listen(puerto, (err) => {
+    if(err) {
+        console.log(`Se produjo un error al iniciar el servidor: ${err}`)
+    } else {
+        console.log(`Servidor escuchando puerto: ${puerto}`)
+    }
+})
