@@ -1,60 +1,45 @@
-import fs from 'fs'
-import 'dotenv/config'
-import express from 'express'
-import routes from "./routes/index.js";
-import session from "express-session";
-import cookieParser from "cookie-parser";
-import MongoStore from "connect-mongo";
+const fs = require( 'fs')
+require('dotenv').config()
+const express = require('express')
+const session = require( "express-session");
+const cookieParser = require( "cookie-parser");
+const MongoStore = require( "connect-mongo");
+const { createServer } = require( "http");
+const { Server } = require( "socket.io");
+//NORMALIZR
+const { normalize, schema, denormalize } = require( "normalizr");
+const passport = require( 'passport');
+const path = require( 'path') 
+const mongoose = require( "mongoose")
+const flash = require('connect-flash');
 
-// console.log("pwd:", process.cwd())
-// const envFile = path.join(process.cwd(), './src/.env')
-// dotenv.config({ path: envFile });
+const initPassport = require( './passport/init.js');
+const dbConfig = require('./db');
+const routes = require( "./routes/index.js")(passport);
 
-
-const DB_USER=process.env.DB_USER
-const DB_PASSWORD=process.env.DB_PASSWORD
-const DB_NAME=process.env.DB_NAME
-const DB_CLUSTER=process.env.DB_CLUSTER
+// Connect to DB
+mongoose.connect(dbConfig.url);
+console.log('dbConfig.url',dbConfig.url)
+const SECRET=process.env.SECRET
 
 const app = express()
+app.use(cookieParser());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(flash());
 const puerto =8080
 const mongoOptions = { useNewUrlParser: true, useUnifiedTopology: true };
 
-app.use("/", routes);
-app.use(cookieParser());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }))
-
-function authMiddleware(req, res, next) {
-    console.log("authMiddleware",req.session.user)
-  if (req.session.user) {
-    next();
-  } else {
-    res.redirect("/login");
-  }
-}
-
-function loginMiddleware(req, res, next) {
-  if (req.session.user) {
-    res.redirect("/");
-  } else {
-    next();
-  }
-}
 
 app.use(
   session({
     store: MongoStore.create({
-      mongoUrl:
-        
-        `mongodb+srv://${DB_USER}:${DB_PASSWORD}@${DB_CLUSTER}.mongodb.net/${DB_NAME}?retryWrites=true&w=majority`,
-        
-        //No FUNCIONA CON .ENV
+      mongoUrl: dbConfig.url,
       mongoOptions,
       ttl:600, //time to live sec session CHANGE TO =>10MIN 10*60
       autoRemove: 'native' //session expires the doc in mongodb will be removed
     }),
-    secret: "clase24-coderback",
+    secret: SECRET,
     resave: false,
     saveUninitialized: false,
     rolling: true, // Re initialization of the time in every request
@@ -63,62 +48,13 @@ app.use(
     },
   })
 );
-app.get('/',authMiddleware,(req,res)=>{
-  res.sendFile(path.join(__dirname, "./public/index.html"));
+//Inicializo PASSPORT
+app.use(passport.initialize());
+app.use(passport.session());
+initPassport(passport);
 
-})
-app.get('/login',loginMiddleware,(req, res)=>{
-  res.sendFile(path.join(__dirname, "./public","login.html"));
-  
-})
-app.post('/process-login',(req, res)=>{
-    console.log('req',req.body)
-    req.session.user=req.body.username
-    // res.status(200).send(req.session.user)
-    res.redirect('/')
-})
-app.get('/user-info',(req, res)=>{
-  res.json({username: req.session.user})
-})
+app.use("/", routes);
 
-app.get('/logout',authMiddleware,(req, res)=>{
-  res.send(`<h1>Hasta luego ${req.session.user}</h1>
-  <script type="text/javascript">
-  setTimeout(function(){ location.href = '/login'},2000)
-  </script>`)
-  req.session.destroy(err=>{
-    if(err){
-      console.log('error en el Logout:', err)
-    }
-  })
-})
-// const handlebars = require('express-handlebars')
-
-
-// app.engine('hbs', handlebars({
-//   extname: '.hbs',
-//   defaultLayout: path.join(__dirname, './views/layouts/main.hbs'),
-//   layoutsDir: path.join(__dirname, './views/layouts'),
-//   partialsDir: path.join(__dirname, './views/partials')
-// }))
-
-// app.set('view engine', 'hbs')
-// app.set('views', path.join(__dirname, './views'))
-
-import path from 'path'
-import { fileURLToPath } from 'url';
-
-const __filename= fileURLToPath(import.meta.url)
-const __dirname= path.dirname(__filename)
-// import { Server: IOServer } from ('socket.io')
-
-
-
-import { createServer } from "http";
-import { Server } from "socket.io";
-//NORMALIZR
-import { normalize, schema, denormalize } from "normalizr";
-import util from "util";
 
 const httpServer = createServer();
 
@@ -131,10 +67,6 @@ const expressServer = app.listen(puerto, (err) => {
 })
 const io = new Server(expressServer) 
 
-// function print(objeto) {
-//     console.log(util.inspect(objeto, false, 12, true));
-// }
-
 const messagesNormalizar= []
 const productos= []
 
@@ -144,15 +76,13 @@ app.use(express.static(__dirname + '/public'))
 async function escribir(){
     try{
         await fs.promises.writeFile(path.join(__dirname,'/chat'), JSON.stringify(messagesNormalizar))
-        console.log('guardado')
+        console.log('guardado',path.join(__dirname,'/chat'))
     }catch(err){
         console.log('no se pudo guardar el chat', err)
     }
 
 }
 // LADO SERVIDOR
-
-
 
 io.on('connection', async socket=>{
     console.log('se conecto un usuario')

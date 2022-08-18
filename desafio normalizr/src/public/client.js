@@ -26,13 +26,14 @@ const messageInput = document.querySelector('#messageInput')
 
 const totalMessages = document.querySelector('#totalMessages')
 //Bienvenida MENSAJE LOGIN
+
 async function insertUser(){
     let userName
     fetch('/user-info')
      .then(user=>user.json())
      .then(json=>userName= json)
 
-    console.log('userName', userName)
+    // console.log('userName', userName)
     // console.log(res.body)
     // const data= await res.json()
     // document.querySelector('#Login').innerHTML= data.username
@@ -56,7 +57,7 @@ function sendMessage() {
         const avatar = avatarInput.value
         const message = messageInput.value
         const tiempochat = `${fecha}, ${argHora}`
-        console.log(tiempochat)
+        // console.log(tiempochat)
         socket.emit('client:messageNormalizar', {author: { mail,nombre,apellido,edad,alias,avatar}, comment: {text:message, time:tiempochat}})
         // socket.emit('client:message', { mail, tiempochat, message }) //emito el mensaje al servidor
     } catch(error) {
